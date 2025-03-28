@@ -1,0 +1,15 @@
+server:
+  port: 8083
+  datasource:
+    url: jdbc:postgresql://localhost:5434/postgres
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: qwerty
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  liquibase:
+    change-log: classpath:/db.changelog/changelog-master.yml
+    enabled: true
+    drop-first: false
