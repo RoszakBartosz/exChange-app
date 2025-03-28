@@ -1,5 +1,6 @@
 package service;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import model.ExChangeRate;
@@ -15,17 +16,17 @@ import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @Service
-public class ExChangingService {
+public class ImportExChangingRatesService {
     private WebClient webClient;
     private final ExChangingRepository repository;
 
 
-    public ExChangingService(WebClient.Builder builder, ExChangingRepository repository){
+    public ImportExChangingRatesService(WebClient.Builder builder, ExChangingRepository repository){
         this.webClient = builder.baseUrl("https://api.nbp.pl/api").build();
         this.repository = repository;
     }
 
-    public Mono<List<ExChangeRate>> getExchangeRates() {
+    protected Mono<List<ExChangeRate>> getExchangeRates() {
         Mono<List<ExChangeRate>> listMono = webClient.get()
                 .uri("/exchangerates/tables/A?format=json")
                 .retrieve()
@@ -34,7 +35,7 @@ public class ExChangingService {
                 .collectList();
         return listMono;
     }
-
+    @PostConstruct
     @Transactional
     @Scheduled(cron = "0 */10 * * * *")
     public void saveToDBRates(){
@@ -45,4 +46,5 @@ public class ExChangingService {
         }
         repository.saveAll(exChangeRateList);
     }
+
 }
