@@ -1,0 +1,10 @@
+services:
+  postgresDataBase:
+    image: postgres:17.2
+    environment:
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_DB: exChangeApp
+    #      POSTGRES_USERNAME: postgres
+    restart: always
+    ports:
+      - "5434:5432"
