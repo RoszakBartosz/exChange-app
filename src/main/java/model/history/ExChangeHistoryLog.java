@@ -1,6 +1,7 @@
 package model.history;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,10 +10,16 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@NoArgsConstructor
+@Builder
 public class ExChangeHistoryLog {
-    private BigDecimal amountFromOperation;
-    private BigDecimal midInTheseTime;
-    private String choosenCurrency;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private BigDecimal fromAmountOperation;
+    private BigDecimal ToAmountOperation;
+    private BigDecimal midInTheseTimeFrom;
+    private BigDecimal midInTheseTimeTo;
+    private String chosenCurrencyFrom;
+    private String chosenCurrencyTo;
     private LocalDateTime dateTimeFromOperation;
 }

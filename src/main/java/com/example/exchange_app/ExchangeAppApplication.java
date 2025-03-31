@@ -2,10 +2,12 @@ package com.example.exchange_app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
+@EnableCaching
 public class ExchangeAppApplication {
 
 	public static void main(String[] args) {
@@ -53,6 +55,8 @@ public class ExchangeAppApplication {
 	// cache za pomocą spring boot cache, chyba ze chcesz sie oopisac to postaw se redisa
 	// i wyminana walut nie musi byc kazdej waluty znajdz po prostu api (jest strona na npb z dostaepnym api wymiany walut)
 	// i po prostu zrob wyimany z pl na inne waluty i z innych na pl jesli sie da
+	// dockeryzacja aplikacji
+	//schedlock
 	// swagger
 	// obsluga n+1
 // query dsl§

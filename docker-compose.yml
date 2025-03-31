@@ -1,10 +1,42 @@
+
+networks:
+  my_network:
+
 services:
   postgresDataBase:
+    container_name: postgresDataBase
     image: postgres:17.2
     environment:
       POSTGRES_PASSWORD: qwerty
       POSTGRES_DB: exChangeApp
+      POSTGRES_USER: postgres
     #      POSTGRES_USERNAME: postgres
     restart: always
     ports:
-      - "5434:5432"
+      - "5432:5432"
+    networks:
+    - my_network
+
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - my_network
+
+  exchange-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: exx
+    ports:
+      - "8080:8080"
+    networks:
+      - my_network
+    depends_on:
+      - redis
+      - postgresDataBase
+
+
+# stowrzyc wlasny network, komunikajca z baza danych redis itp nie po localhost tylko poi nazwie kontenera
