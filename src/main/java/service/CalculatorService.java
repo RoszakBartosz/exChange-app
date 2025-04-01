@@ -1,24 +1,62 @@
 package service;
 
+import lombok.RequiredArgsConstructor;
+import model.ExChangeRate;
+import model.history.ExChangeHistoryLog;
 import org.springframework.stereotype.Service;
+import repository.ExChangingRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
+@RequiredArgsConstructor
 @Service
 public class CalculatorService {
-    public BigDecimal multiply(BigDecimal mid, BigDecimal value){
-        if (mid==null||value==null) {
-           throw new NullPointerException("mid or value are null: "+mid.toString() + " , " +value.toString());
-        }
-        if (mid.signum()<=0||value.signum()<=0){
-            throw new NullPointerException("mid or value is equal to zero, or is negate: "+mid.toString() + " , " +value.toString());
-        }
-        BigDecimal resultFromDivide = mid.multiply(value);
+    private final ExChangingRepository repository;
+    private final ExChangingHistoryLogService historyLogService;
 
-        if (resultFromDivide.signum()<=0){
-            throw new NullPointerException("the result from divide cannot be null, but is: "+resultFromDivide.toString());
+    public BigDecimal ExChange(String codeCurrencyFrom, String codeCurrencyTo, BigDecimal valueFrom){
+        BigDecimal midTo = repository.findByCode(codeCurrencyTo).getMid();
+
+        if (!codeCurrencyFrom.equals("PLN")) {
+            ExChangeRate currencyFrom = repository.findByCode(codeCurrencyFrom);
+            BigDecimal midFrom = currencyFrom.getMid();
+            BigDecimal valueFromInPLN = valueFrom.multiply(midFrom);
+            BigDecimal value = valueFromInPLN.multiply(midTo);
+
+
+            ExChangeHistoryLog exChangeHistoryLog = ExChangeHistoryLog.builder()
+                    .chosenCurrencyFrom(codeCurrencyFrom)
+                    .fromAmountOperation(valueFrom)
+                    .chosenCurrencyTo(codeCurrencyTo)
+                    .ToAmountOperation(value)
+                    .midInTheseTimeFrom(midFrom)
+                    .midInTheseTimeTo(midTo)
+                    .dateTimeFromOperation(LocalDateTime.now())
+                    .build();
+
+            historyLogService.saveHistory(exChangeHistoryLog);
+
+            return value;
+        } else {
+            BigDecimal value = valueFrom;
+            BigDecimal resultFromDivide = midTo.multiply(value);
+            ExChangeHistoryLog exChangeHistoryLog = ExChangeHistoryLog.builder()
+                    .chosenCurrencyFrom(codeCurrencyFrom)
+                    .fromAmountOperation(valueFrom)
+                    .chosenCurrencyTo(codeCurrencyTo)
+                    .ToAmountOperation(value)
+                    .midInTheseTimeFrom(BigDecimal.valueOf(1.00))
+                    .midInTheseTimeTo(midTo)
+                    .dateTimeFromOperation(LocalDateTime.now())
+                    .build();
+
+            historyLogService.saveHistory(exChangeHistoryLog);
+
+            return  resultFromDivide;
         }
-        return resultFromDivide;
+
+
     }
 
 }

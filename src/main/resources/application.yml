@@ -1,7 +1,8 @@
 server:
-  port: 8083
+  port: 8080
+spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/postgres
+    url: jdbc:postgresql://postgresDataBase:5432/exChangeApp
     driverClassName: org.postgresql.Driver
     username: postgres
     password: qwerty
@@ -13,3 +14,9 @@ server:
     change-log: classpath:/db.changelog/changelog-master.yml
     enabled: true
     drop-first: false
+  cache:
+    type: redis
+  data:
+    redis:
+      host: redis
+      port: 6379
