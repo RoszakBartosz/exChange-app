@@ -20,6 +20,7 @@ public class CalculatorService {
     public CalculatorResponseDTO ExChange(String codeCurrencyFrom, String codeCurrencyTo, BigDecimal valueFrom){
         BigDecimal midTo = repository.findByCode(codeCurrencyTo).getMid();
 
+
         if (!codeCurrencyFrom.equals("PLN")) {
             ExChangeRate currencyFrom = repository.findByCode(codeCurrencyFrom);
             BigDecimal midFrom = currencyFrom.getMid();

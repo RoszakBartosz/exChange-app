@@ -1,5 +1,6 @@
 package com.example.exchange_app.controller;
 
+import com.example.exchange_app.model.ExChangeRateRequest;
 import com.example.exchange_app.model.dto.ResponseRatesDTO;
 import com.example.exchange_app.model.history.ExChangeHistoryLog;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,12 +33,12 @@ public class ExChangingController {
     }
 
     @GetMapping("/find-all")
-    public ResponseEntity<Page<ResponseRatesDTO>> findAll(@PageableDefault Pageable pageable){
-        return new ResponseEntity<>(service.findAll(pageable), HttpStatus.OK);
+    public ResponseEntity<Page<ResponseRatesDTO>> findAll(ExChangeRateRequest exChangeRateRequest, @PageableDefault Pageable pageable){
+        return new ResponseEntity<>(service.findAll(exChangeRateRequest, pageable), HttpStatus.OK);
     }
 
-    @GetMapping("find-by-code/{code}")
-    public ResponseEntity<ResponseRatesDTO> findByCode(@PathVariable(name = "code")String code){
+    @GetMapping("find-by-code")
+    public ResponseEntity<ResponseRatesDTO> findByCode(@RequestParam String code){
         return new ResponseEntity<>(service.findByCode(code), HttpStatus.OK);
     }
 

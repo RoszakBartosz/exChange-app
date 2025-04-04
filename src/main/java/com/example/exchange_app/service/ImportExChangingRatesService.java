@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.example.exchange_app.model.ExChangeRate;
 import com.example.exchange_app.model.ExChangeRateTable;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ public class ImportExChangingRatesService {
     }
     @Transactional
     @Scheduled(cron = "0 */10 * * * *")
+    @SchedulerLock(name = "saveToDB", lockAtLeastFor = "1m", lockAtMostFor = "5m")
     public void saveToDBRates(){
         getExchangeRates()
                 .doOnError(e -> log.error("Error fetching exchange rates: ", e)) // Logowanie błędów

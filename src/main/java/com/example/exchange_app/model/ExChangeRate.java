@@ -1,5 +1,7 @@
 package com.example.exchange_app.model;
 
+import com.querydsl.core.annotations.QueryEntities;
+import com.querydsl.core.annotations.QueryEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
