@@ -13,8 +13,10 @@ public class ExChangeHistoryRequest {
     private long id;
     private BigDecimal fromAmountOperation;
     private BigDecimal ToAmountOperation;
-    private BigDecimal midInTheseTimeFrom;
-    private BigDecimal midInTheseTimeTo;
+    private BigDecimal midInTheseTimeFromFrom;
+    private BigDecimal midInTheseTimeFromTo;
+    private BigDecimal midInTheseTimeToFrom;
+    private BigDecimal midInTheseTimeToTo;
     private String chosenCurrencyFrom;
     private String chosenCurrencyTo;
     private LocalDateTime FromDateTimeFromOperation;

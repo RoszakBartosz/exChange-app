@@ -18,6 +18,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.example.exchange_app.repository.ExChangingRepository;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -120,10 +122,6 @@ public class ExChangeService {
                 .mid(calculatorResponseDTO.getMid())
                 .build();
         return responseDTO;
-    }
-
-    public Page<ExChangeHistoryLog> findAllHistory(Pageable pageable){
-        return historyLogService.findAll(pageable);
     }
 
 }

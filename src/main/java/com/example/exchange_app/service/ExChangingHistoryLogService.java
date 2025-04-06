@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.example.exchange_app.repository.ExChangingHistoryLogRepository;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -20,38 +21,62 @@ import java.util.Objects;
 @Table(name = "exchangehistorylog")
 public class ExChangingHistoryLogService {
     private final ExChangingHistoryLogRepository repository;
-    QExChangeHistoryLog exChangeHistoryLog = QExChangeHistoryLog.exChangeHistoryLog;
 
-//    BooleanExpression predicate1 = buildPredicate(ExChangeHistoryRequest, exChangeHistoryLog);
-//    public void saveHistory(ExChangeHistoryLog exChangingHistoryLog){
-//        repository.save(exChangingHistoryLog);
-//    }
-//    //  todo queryDSL
-//    public Page<ExChangeHistoryLog> findAll(Pageable pageable){
-//    Page<ExChangeHistoryLog> all = repository.findAll(predicate1, pageable);
-//        return all;
-//}
-//
-//private BooleanExpression buildPredicate(ExChangeHistoryRequest Request, QExChangeRate exChangeHistoryLog) {
-//    BooleanExpression predicate = exChangeRate.isNotNull();
-//
-//    String currency = exChangeRateRequest.getCode();
-//
-//    if (Objects.nonNull(currency) && !currency.isEmpty()) {
-//        predicate = predicate.and(exChangeRate.code.equalsIgnoreCase(currency));
-//    }
-//
-//    if (Objects.nonNull(currency) && !currency.isEmpty()) {
-//        predicate = predicate.and(exChangeRate.mid.loe(exChangeRateRequest.getToMid()));
-//    }
-//
-//
-//    if (Objects.nonNull(currency) && !currency.isEmpty()) {
-//        predicate = predicate.and(exChangeRate.mid.goe(exChangeRateRequest.getFromMid()));
-//    }
-//    return predicate;
-//
-//}
+
+
+
+    public void saveHistory(ExChangeHistoryLog exChangingHistoryLog){
+        repository.save(exChangingHistoryLog);
+    }
+
+    //  todo queryDSL
+    public Page<ExChangeHistoryLog> findAllHistory(ExChangeHistoryRequest exChangeHistoryRequest, Pageable pageable){
+
+        QExChangeHistoryLog exChangeHistoryLog = QExChangeHistoryLog.exChangeHistoryLog;
+
+        BooleanExpression predicate = buildPredicate(exChangeHistoryRequest, exChangeHistoryLog);
+    Page<ExChangeHistoryLog> all = repository.findAll(predicate, pageable);
+        return all;
+}
+private BooleanExpression buildPredicate(ExChangeHistoryRequest request, QExChangeHistoryLog exChangeHistoryLog) {
+    BooleanExpression predicate = exChangeHistoryLog.isNotNull();
+
+    long id = request.getId();
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.dateTimeFromOperation.after(request.getFromDateTimeFromOperation()));
+    }
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.dateTimeFromOperation.before(request.getToDateTimeFromOperation()));
+    }
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.chosenCurrencyTo.eq(request.getChosenCurrencyTo()));
+    }
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.chosenCurrencyFrom.eq(request.getChosenCurrencyFrom()));
+    }
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.midInTheseTimeTo.loe(request.getMidInTheseTimeToTo()));
+    }
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.midInTheseTimeTo.goe(request.getMidInTheseTimeToFrom()));
+    }
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.midInTheseTimeFrom.loe(request.getMidInTheseTimeFromTo()));
+    }
+
+    if (Objects.nonNull(id) && id>0) {
+        predicate = predicate.and(exChangeHistoryLog.midInTheseTimeFrom.goe(request.getMidInTheseTimeFromFrom()));
+    }
+    return predicate;
+
+}
 
 
 

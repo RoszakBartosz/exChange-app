@@ -3,6 +3,8 @@ package com.example.exchange_app.controller;
 import com.example.exchange_app.model.ExChangeRateRequest;
 import com.example.exchange_app.model.dto.ResponseRatesDTO;
 import com.example.exchange_app.model.history.ExChangeHistoryLog;
+import com.example.exchange_app.model.history.ExChangeHistoryRequest;
+import com.example.exchange_app.service.ExChangingHistoryLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,6 +26,7 @@ import com.example.exchange_app.service.ExChangeService;
 public class ExChangingController {
 
     private final ExChangeService service;
+    private final ExChangingHistoryLogService historyLogService;
 
     @Operation(summary = "podaj walutę, liczbę i walutę docelową", description = "zwraca ResponseDTO z wartościami")
     @PostMapping("/exchange")
@@ -43,8 +46,8 @@ public class ExChangingController {
     }
 
     @GetMapping("find-all-history")
-    public ResponseEntity<Page<ExChangeHistoryLog>> findAllHistory(@PageableDefault Pageable pageable){
-        return new ResponseEntity<>(service.findAllHistory(pageable), HttpStatus.OK);
+    public ResponseEntity<Page<ExChangeHistoryLog>> findAllHistory(ExChangeHistoryRequest exChangeHistoryRequest, @PageableDefault Pageable pageable){
+        return new ResponseEntity<>(historyLogService.findAllHistory(exChangeHistoryRequest,pageable), HttpStatus.OK);
     }
 
 }

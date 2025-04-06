@@ -3,9 +3,7 @@ package com.example.exchange_app.model;
 import com.querydsl.core.annotations.QueryEntities;
 import com.querydsl.core.annotations.QueryEntity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -14,6 +12,8 @@ import java.math.BigDecimal;
 @Entity
 @EqualsAndHashCode(of = "id")
 @Table(name = "exchangerate")
+@AllArgsConstructor
+@Builder
 public class ExChangeRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
