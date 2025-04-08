@@ -2,3 +2,10 @@ databaseChangeLog:
   - include:
       file: changesets/db.1.create-table.yml
       relativeToChangeLogFile: true
+  - include:
+      file: changesets/db.2.create-schedlock-table.yml
+      relativeToChangeLogFile: true
+  - include:
+      file: changesets/db.3.create-user.yml
+      relativeToChangeLogFile: true
+

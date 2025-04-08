@@ -36,7 +36,7 @@ public class ExChangeServiceTest {
                 .currency("Euro")
                 .build();
         Mockito.when(repository.findByCode(codeExpected)).thenReturn(build);
-        service.findByCode(codeExpected)
+        service.findByCode(codeExpected);
         Assertions.assertEquals(build,codeExpected);
         }
     }

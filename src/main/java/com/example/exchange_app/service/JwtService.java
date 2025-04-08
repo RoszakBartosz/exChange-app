@@ -1,13 +1,16 @@
 package com.example.exchange_app.service;
 
+import com.example.exchange_app.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -17,15 +20,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
 @Service
-public class JwtService implements UserDetailsService {
-
-    private static final String SECRET_KEY = "6DC9145E14353F667EE5ADB7FCEF7";
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
-    }
+public class JwtService {
+    private static final String SECRET_KEY = "EO3GiqHABdocbxhpQ02IxciTrLrLeYWQu2ISVNOuNb8=";
 
     public String extractUsername(String jwtToken) {
         return extractClaim(jwtToken, Claims::getSubject);
@@ -48,7 +45,7 @@ public class JwtService implements UserDetailsService {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 4))
-                .signWith(getSignInKey(), SignatureAlgorithm.ES256)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
     public String generateToken(UserDetails userDetails){
@@ -60,7 +57,7 @@ public class JwtService implements UserDetailsService {
     }
 
     private boolean isTokenExpired(String token) {
-        extractExpiration(token).before(new Date());
+       return extractExpiration(token).before(new Date());
     }
 
     private Date extractExpiration(String token) {

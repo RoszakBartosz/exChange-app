@@ -1,5 +1,6 @@
 package com.example.exchange_app.model.config;
 
+import com.example.exchange_app.service.CustomUserDetailsService;
 import com.example.exchange_app.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,15 +15,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-@Configuration
+@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -35,6 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     final String userEmail;
     if (authHeader == null || !authHeader.startsWith("Bearer ")){
         filterChain.doFilter(request, response);
+        return;
     }
         jwtToken = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwtToken);
