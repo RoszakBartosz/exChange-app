@@ -31,12 +31,12 @@ public class ExChangeService {
     private final ExChangingRepository repository;
     private final CalculatorService calculatorService;
     private final ExChangingHistoryLogService historyLogService;
+    private final AuthenticationService authenticationService;
 
 
 
-
+    @Cacheable(value = "FIND_ALL", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     public Page<ResponseRatesDTO> findAll(ExChangeRateRequest exChangeRateRequest, Pageable pageable) {
-
         QExChangeRate exchangeRate = QExChangeRate.exChangeRate;
 
         BooleanExpression predicate = buildPredicate(exChangeRateRequest, exchangeRate);
@@ -50,7 +50,7 @@ public class ExChangeService {
                     .build();
             return build;
         }).collect(Collectors.toList());
-        Page page = new PageImpl(collect);
+        Page<ResponseRatesDTO> page = new PageImpl<>(collect, pageable, all.getTotalElements());
         return page;
     }
 
@@ -67,7 +67,6 @@ public class ExChangeService {
             predicate = predicate.and(exChangeRate.mid.loe(exChangeRateRequest.getToMid()));
         }
 
-
         if (Objects.nonNull(currency) && !currency.isEmpty()) {
             predicate = predicate.and(exChangeRate.mid.goe(exChangeRateRequest.getFromMid()));
         }
@@ -79,28 +78,28 @@ public class ExChangeService {
 
 
 
-    //TODO nazwa cache do enum albo CacheConstans
-    @Cacheable(value = "FIND_ALL", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
-    public Page<ResponseRatesDTO> findAll(Pageable pageable){
-        Page<ExChangeRate> allRates = repository.findAll(pageable);
-        Page<ResponseRatesDTO> map = allRates.map(exChangeRate -> {
-            ResponseRatesDTO build = ResponseRatesDTO.builder()
-                    .currency(exChangeRate.getCurrency())
-                    .code(exChangeRate.getCode())
-                    .mid(exChangeRate.getMid())
-                    .build();
-            return build;
-        });
-        return map;
-    }
+//    //TODO nazwa cache do enum albo CacheConstans
+//    @Cacheable(value = "FIND_ALL", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
+//    public Page<ResponseRatesDTO> findAll(Pageable pageable){
+//        Page<ExChangeRate> allRates = repository.findAll(pageable);
+//        Page<ResponseRatesDTO> map = allRates.map(exChangeRate -> {
+//            ResponseRatesDTO build = ResponseRatesDTO.builder()
+//                    .currency(exChangeRate.getCurrency())
+//                    .code(exChangeRate.getCode())
+//                    .mid(exChangeRate.getMid())
+//                    .build();
+//            return build;
+//        });
+//        return map;
+//    }
 
     @Cacheable(value = "FIND_BY_CODE", key = "#code")
     public ResponseRatesDTO findByCode(String code){
-        String upperCase = code.toUpperCase();
-        ExChangeRate byCode = repository.findByCode(upperCase);
+
+        ExChangeRate byCode = repository.findByCode(code).orElseThrow(() -> new NullPointerException("Not correct code"));
         ResponseRatesDTO exc = ResponseRatesDTO.builder()
-//                .currency(byCode.getCurrency())
-                .code(upperCase)
+                .currency(byCode.getCurrency())
+                .code(byCode.getCode())
                 .mid(byCode.getMid())
                 .build();
         return exc;

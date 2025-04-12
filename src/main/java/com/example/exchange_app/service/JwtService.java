@@ -1,5 +1,6 @@
 package com.example.exchange_app.service;
 
+import com.example.exchange_app.model.enums.UserRole;
 import com.example.exchange_app.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -7,6 +8,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,7 +22,10 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Service
 public class JwtService {
     private static final String SECRET_KEY = "EO3GiqHABdocbxhpQ02IxciTrLrLeYWQu2ISVNOuNb8=";
@@ -38,25 +44,45 @@ public class JwtService {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails){
+
+    public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        extraClaims.put("type", "refresh");
+
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 4))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 4))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails){
+        extraClaims.put("type", "access");
+
+        return Jwts
+                .builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
     public String generateToken(UserDetails userDetails){
         return generateToken(new HashMap<>(), userDetails);
     }
+    public String generateRefreshToken(UserDetails userDetails){
+        return generateRefreshToken(new HashMap<>(), userDetails);
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
+    protected boolean isTokenExpired(String token) {
        return extractExpiration(token).before(new Date());
     }
 

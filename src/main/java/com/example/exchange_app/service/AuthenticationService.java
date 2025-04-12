@@ -14,6 +14,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
+import static com.example.exchange_app.model.QUser.user;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -30,25 +34,41 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(requestDTO.getPassword()))
                 .role(UserRole.USER)
                 .build();
-
+        var refreshToken = jwtService.generateRefreshToken(build);
         var jwtToken = jwtService.generateToken(build);
         repository.save(build);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
+
+
     }
     public AuthenticationResponse authenticate(AuthenticationRequestDTO requestDTO){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         requestDTO.getEmail(),
-                        requestDTO.getPassword()
-                )
-        );
+                        requestDTO.getPassword()));
         var user = repository.findByEmail(requestDTO.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        var jwtRefreshToken = jwtService.generateRefreshToken(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .refreshToken(jwtRefreshToken)
                 .build();
+    }
+
+    public AuthenticationResponse refresh(AuthenticationRequestDTO requestDTO) {
+        if (!jwtService.isTokenExpired(requestDTO.getRefreshToken())) {
+            var user = repository.findByEmail(requestDTO.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            var jwtToken = jwtService.generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        } else {
+            throw new NoSuchElementException("this token is expired");
+        }
     }
 }
