@@ -36,7 +36,7 @@ public class ExChangingController {
     }
 
     @GetMapping("/find-all")
-    public ResponseEntity<Page<ResponseRatesDTO>> findAll(ExChangeRateRequest exChangeRateRequest, @PageableDefault Pageable pageable){
+    public ResponseEntity<Page<ResponseRatesDTO>> findAll(@ModelAttribute ExChangeRateRequest exChangeRateRequest, @PageableDefault Pageable pageable){
         return new ResponseEntity<>(service.findAll(exChangeRateRequest, pageable), HttpStatus.OK);
     }
 
@@ -49,5 +49,9 @@ public class ExChangingController {
     public ResponseEntity<Page<ExChangeHistoryLog>> findAllHistory(ExChangeHistoryRequest exChangeHistoryRequest, @PageableDefault Pageable pageable){
         return new ResponseEntity<>(historyLogService.findAllHistory(exChangeHistoryRequest,pageable), HttpStatus.OK);
     }
-
+    @PostMapping("generate-report")
+    public ResponseEntity<HttpStatus> report( ExChangeHistoryRequest exChangeHistoryRequest){
+        historyLogService.saveReport(exChangeHistoryRequest);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 }

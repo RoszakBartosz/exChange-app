@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class ResponseRatesDTO implements Serializable {
+//    todo serialization uid
     private String code;
     private String currency;
     private BigDecimal mid;

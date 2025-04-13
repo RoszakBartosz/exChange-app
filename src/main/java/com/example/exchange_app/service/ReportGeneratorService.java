@@ -8,22 +8,27 @@ import java.util.List;
 
 public class ReportGeneratorService {
 
-        public static void generateCsvReport(List<String[]> data, String filePath) {
-            File file = new File(filePath);
+    public static void generateCsvReport(List<String[]> data, String filePath) {
+//        File file = new File(filePath);
+//        File parentDir = file.getParentFile();
+//
+//        if (parentDir != null && !parentDir.exists()) {
+//            parentDir.mkdirs(); // tworzy foldery jeśli nie istnieją
+//        }
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                // Zapisz nagłówki (opcjonalnie)
-                writer.write("currency,code,mid,amount");  // Zmień na własne kolumny
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write("currency,mid,amount");
+            writer.newLine();
+
+            for (String[] row : data) {
+                writer.write(String.join(",", row));
                 writer.newLine();
-
-                // Zapisz dane
-                for (String[] row : data) {
-                    writer.write(String.join(",", row));  // Łączenie danych w jedno wiersze CSV
-                    writer.newLine();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
+            System.out.println("Raport zapisany: " + filePath); // podpowiedź gdzie
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+}
 

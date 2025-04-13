@@ -40,9 +40,6 @@ public class SecurityConfiguration {
                         .requestMatchers("api/v1/auth/**").permitAll()
                         .anyRequest()
                         .authenticated()
-//                        .and()
-//                        .sessionManagement()
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )       .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

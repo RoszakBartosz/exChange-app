@@ -3,6 +3,7 @@ package com.example.exchange_app.service;
 import com.example.exchange_app.model.User;
 import com.example.exchange_app.model.dto.AuthenticationRequestDTO;
 import com.example.exchange_app.model.dto.AuthenticationResponse;
+import com.example.exchange_app.model.dto.AuthenticationTokenRequest;
 import com.example.exchange_app.model.dto.RegisterRequestDTO;
 import com.example.exchange_app.model.enums.UserRole;
 import com.example.exchange_app.repository.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
@@ -26,6 +28,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     public AuthenticationResponse register(RegisterRequestDTO requestDTO){
         User build = User.builder()
                 .firstname(requestDTO.getFirstname())
@@ -49,26 +52,28 @@ public class AuthenticationService {
                 new UsernamePasswordAuthenticationToken(
                         requestDTO.getEmail(),
                         requestDTO.getPassword()));
-        var user = repository.findByEmail(requestDTO.getEmail())
+        User user = repository.findByEmail(requestDTO.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        var jwtRefreshToken = jwtService.generateRefreshToken(user);
-        var jwtToken = jwtService.generateToken(user);
+        String jwtRefreshToken = jwtService.generateRefreshToken(user);
+        String jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .refreshToken(jwtRefreshToken)
                 .build();
     }
 
-    public AuthenticationResponse refresh(AuthenticationRequestDTO requestDTO) {
-        if (!jwtService.isTokenExpired(requestDTO.getRefreshToken())) {
-            var user = repository.findByEmail(requestDTO.getEmail())
+    public AuthenticationResponse refresh(AuthenticationTokenRequest requestDTO) {
+        System.out.println(requestDTO.getRefreshToken());
+        if (!jwtService.isTokenExpired(requestDTO.getRefreshToken())||requestDTO.getRefreshToken()==null) {
+            User user = repository.findByEmail(requestDTO.getEmail())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            var jwtToken = jwtService.generateToken(user);
+            String jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
                     .token(jwtToken)
+                    .refreshToken(requestDTO.getRefreshToken())
                     .build();
         } else {
-            throw new NoSuchElementException("this token is expired");
+            throw new NoSuchElementException("this refresh token is expired");
         }
     }
 }
