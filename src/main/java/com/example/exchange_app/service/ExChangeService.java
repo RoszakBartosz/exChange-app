@@ -5,7 +5,6 @@ import com.example.exchange_app.model.ExChangeRateRequest;
 import com.example.exchange_app.model.QExChangeRate;
 import com.example.exchange_app.model.dto.CalculatorResponseDTO;
 import com.example.exchange_app.model.dto.ResponseRatesDTO;
-import com.example.exchange_app.model.history.ExChangeHistoryLog;
 import com.example.exchange_app.model.history.ExChangeHistoryRequest;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import jakarta.transaction.Transactional;
@@ -20,8 +19,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.example.exchange_app.repository.ExChangingRepository;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -83,24 +80,6 @@ public class ExChangeService {
     }
 
 
-
-
-
-//    //TODO nazwa cache do enum albo CacheConstans
-//    @Cacheable(value = "FIND_ALL", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
-//    public Page<ResponseRatesDTO> findAll(Pageable pageable){
-//        Page<ExChangeRate> allRates = repository.findAll(pageable);
-//        Page<ResponseRatesDTO> map = allRates.map(exChangeRate -> {
-//            ResponseRatesDTO build = ResponseRatesDTO.builder()
-//                    .currency(exChangeRate.getCurrency())
-//                    .code(exChangeRate.getCode())
-//                    .mid(exChangeRate.getMid())
-//                    .build();
-//            return build;
-//        });
-//        return map;
-//    }
-
     @Cacheable(value = CacheConstans.FIND_BY_CODE, key = "#code")
     public ResponseRatesDTO findByCode(String code){
 
@@ -115,8 +94,9 @@ public class ExChangeService {
     @Transactional
     @CacheEvict(value = {CacheConstans.FIND_BY_CODE, CacheConstans.FIND_ALL}, allEntries = true)
     public ResponseDTOExChangeRate exChange(RequestExChangeDTO requestExChangeDTO){
+        System.out.println("REQUEST: "+requestExChangeDTO.getCodeCurrencyTo());
         CalculatorResponseDTO calculatorResponseDTO = calculatorService.ExChange(requestExChangeDTO.getCodeCurrencyFrom(),
-                requestExChangeDTO.getCodeCurrencyTo(), requestExChangeDTO.getValueFrom());
+                 requestExChangeDTO.getCodeCurrencyTo(), requestExChangeDTO.getValueFrom());
         BigDecimal value = calculatorResponseDTO.getValue();
         if (value ==null|| value.signum()<=0){
             throw new NullPointerException("amount from calculator is equal 0: ");
@@ -130,8 +110,4 @@ public class ExChangeService {
                 .build();
         return responseDTO;
     }
-    public void report(ExChangeHistoryRequest exChangeHistoryRequest){
-        historyLogService.saveReport(exChangeHistoryRequest);
-    }
-
 }

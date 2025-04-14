@@ -1,34 +1,44 @@
 package com.example.exchange_app.service;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+
+import com.example.exchange_app.model.history.ExChangeHistoryLog;
+import com.example.exchange_app.repository.ExChangingHistoryLogRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+@Service
+@RequiredArgsConstructor
 public class ReportGeneratorService {
+    private final ExChangingHistoryLogRepository repository;
 
-    public static void generateCsvReport(List<String[]> data, String filePath) {
-//        File file = new File(filePath);
-//        File parentDir = file.getParentFile();
-//
-//        if (parentDir != null && !parentDir.exists()) {
-//            parentDir.mkdirs(); // tworzy foldery jeśli nie istnieją
-//        }
+    public List<ExChangeHistoryLog> getHighAmountTransactionsFromLastMonth(){
+        return repository.getHighAmountFromLastMonth();
+    }
+    public Map<String, List<BigDecimal>> getMonthFrom() {
+        List<Object[]> fromLastMonthGroupedByCurrencyFrom = repository.getFromLastMonthGroupedByCurrencyFrom();
+        Map<String, List<BigDecimal>> currencyAmountMap = fromLastMonthGroupedByCurrencyFrom.stream()
+                .collect(Collectors.groupingBy(
+                        obj -> (String) obj[0],
+                        Collectors.mapping(
+                                obj -> (BigDecimal) obj[1],
+                                Collectors.toList())));
+        return currencyAmountMap;
+    }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            writer.write("currency,mid,amount");
-            writer.newLine();
-
-            for (String[] row : data) {
-                writer.write(String.join(",", row));
-                writer.newLine();
-            }
-
-            System.out.println("Raport zapisany: " + filePath); // podpowiedź gdzie
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Map<String, List<BigDecimal>> getMonthTo(){
+        List<Object[]> fromLastMonthGroupedByCurrencyFrom = repository.getFromLastMonthGroupedByCurrencyTo();
+        Map<String, List<BigDecimal>> currencyAmountMap = fromLastMonthGroupedByCurrencyFrom.stream()
+                .collect(Collectors.groupingBy(
+                        obj -> (String) obj[0],
+                        Collectors.mapping(
+                                obj -> (BigDecimal) obj[1],
+                                Collectors.toList())));
+        return currencyAmountMap;
     }
 }
 

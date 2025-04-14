@@ -41,10 +41,33 @@ public class ExchangeAppApplication {
 //@GET /api/v1/reports/{reportName}
 //
 //i tak wspieramy kilka reporow:
-//HIGH_AMOUNT_LAST_MONTH - ktory zwraca pogrupowane transakcje z ostatniego miesiaca dla transakcji ktorych ogolna wartosc byla wieksza niz 15 tys euro w dniu transakcji.
+//HIGH_AMOUNT_LAST_MONTH - ktory zwraca pogrupowane transakcje z ostatniego miesiaca dla transakcji ktorych ogolna wartosc byla wieksza niz 15 tys amount w dniu transakcji.
 //		GROUP_BY_CURRENCY_FROM_LAST_MONTH - ktory zwraca pogrupowane transakcje z ostatniego miesiaca po currencyFRom np: EURO bylo 10, USD 20, CHF 15 itp.
 //		GROUP_BY_CURRENCY_TO_LAST_MONTH - analogicznie..
-// LISTA CO MUSI BYC ZAIMPLEMTNEOWANE:
+
+//	GROUP_BY_CURRENCY_FROM_LAST_MONTH
+
+
+//	historylog CF pln CT usd amount 30000
+//	history log > INTERVAL(1month ago)
+//
+//
+//	PLN {
+//		transakcja1 CF: 20
+//		transakcja2 CF: 30
+//	}
+//	USD {
+//		transakcja1 CF: 20
+//		transakcja2 CF: 30
+//	}
+
+	//reporty z query
+	//test integracyjny przez mockmvc
+	//uruchomic apke przez dockerfile
+	//docker-compose dodac volume i czytac tam
+
+
+// LISTA CO MUSI BYC ZAIMPLEMTENOWANE:
 // testy unit, intrgracyjne z Testconatainers
 	// spring secuirty jwt (enpdoint do tworzenia tokenow i refresh tokenow)
 	// kazda nowa fuknjconalsc (np dodanie spring security jwt, napsianie testow)

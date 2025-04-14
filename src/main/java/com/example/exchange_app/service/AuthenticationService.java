@@ -8,17 +8,14 @@ import com.example.exchange_app.model.dto.RegisterRequestDTO;
 import com.example.exchange_app.model.enums.UserRole;
 import com.example.exchange_app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.NoSuchElementException;
 
-import static com.example.exchange_app.model.QUser.user;
 
 @Service
 @RequiredArgsConstructor

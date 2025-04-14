@@ -5,6 +5,7 @@ import com.example.exchange_app.model.dto.ResponseRatesDTO;
 import com.example.exchange_app.model.history.ExChangeHistoryLog;
 import com.example.exchange_app.model.history.ExChangeHistoryRequest;
 import com.example.exchange_app.service.ExChangingHistoryLogService;
+import com.example.exchange_app.service.ReportGeneratorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.exchange_app.service.ExChangeService;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/ex")
@@ -27,6 +32,7 @@ public class ExChangingController {
 
     private final ExChangeService service;
     private final ExChangingHistoryLogService historyLogService;
+    private final ReportGeneratorService reportGeneratorService;
 
     @Operation(summary = "podaj walutę, liczbę i walutę docelową", description = "zwraca ResponseDTO z wartościami")
     @PostMapping("/exchange")
@@ -41,7 +47,7 @@ public class ExChangingController {
     }
 
     @GetMapping("find-by-code")
-    public ResponseEntity<ResponseRatesDTO> findByCode(@RequestParam String code){
+    public ResponseEntity<ResponseRatesDTO> findByCode(@Valid @RequestParam String code){
         return new ResponseEntity<>(service.findByCode(code), HttpStatus.OK);
     }
 
@@ -49,9 +55,18 @@ public class ExChangingController {
     public ResponseEntity<Page<ExChangeHistoryLog>> findAllHistory(ExChangeHistoryRequest exChangeHistoryRequest, @PageableDefault Pageable pageable){
         return new ResponseEntity<>(historyLogService.findAllHistory(exChangeHistoryRequest,pageable), HttpStatus.OK);
     }
-    @PostMapping("generate-report")
-    public ResponseEntity<HttpStatus> report( ExChangeHistoryRequest exChangeHistoryRequest){
-        historyLogService.saveReport(exChangeHistoryRequest);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+    @PostMapping("generate-report-high")
+    public ResponseEntity<List<ExChangeHistoryLog>> reportHigh(){
+        return new ResponseEntity<>(reportGeneratorService
+                .getHighAmountTransactionsFromLastMonth(),HttpStatus.OK);
+    }
+    @PostMapping("generate-report-currency-from")
+    public ResponseEntity<Map<String, List<BigDecimal>>> reportFrom(){
+        return new ResponseEntity<>(reportGeneratorService.getMonthFrom(),HttpStatus.OK);
+    }
+    @PostMapping("generate-report-currency-to")
+    public ResponseEntity<Map<String, List<BigDecimal>>> reportTo(){
+        return new ResponseEntity<>(reportGeneratorService.getMonthTo(),HttpStatus.OK);
     }
 }

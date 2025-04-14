@@ -18,8 +18,8 @@ public class CalculatorService {
     private final ExChangingHistoryLogService historyLogService;
 
     public CalculatorResponseDTO ExChange(String codeCurrencyFrom, String codeCurrencyTo, BigDecimal valueFrom){
-        BigDecimal midTo = repository.findByCode(codeCurrencyTo).orElseThrow(() -> new NullPointerException("the codeCurrencyTo is null ")).getMid();
-
+        ExChangeRate exChangeRate = repository.findByCode(codeCurrencyTo).orElseThrow(() -> new NullPointerException("the codeCurrencyTo is null "));
+        BigDecimal midTo = exChangeRate.getMid();
 
         if (!codeCurrencyFrom.equals("PLN")) {
             ExChangeRate currencyFrom = repository.findByCode(codeCurrencyFrom).orElseThrow(() -> new NullPointerException("the codeCurrencyFrom is null"));

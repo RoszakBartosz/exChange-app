@@ -4,6 +4,10 @@ networks:
 
 services:
   postgresDataBase:
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # dodac volumes
+    # poczytac co to volumes, mounts, dns networka, czemu kontenery potrbueja networka, za co on jest odpowiedzlany? co to entrypoint.sh dla postgresa
     container_name: postgresDataBase
     image: postgres:17.2
     environment:
