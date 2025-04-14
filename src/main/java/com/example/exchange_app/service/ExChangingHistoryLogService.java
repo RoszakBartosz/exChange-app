@@ -42,32 +42,22 @@ public class ExChangingHistoryLogService {
 
     public void saveReport(ExChangeHistoryRequest exChangeHistoryRequest) {
         // Pobieranie wszystkich historii
-        Page<ExChangeHistoryLog> allHistory = findAllHistory(exChangeHistoryRequest, null);
+        List<ExChangeHistoryLog> allHistory = repository.findAll();
 
         // Przygotowanie listy, która będzie przechowywać dane do raportu
         List<String[]> reportData = new ArrayList<>();
 
         // Dodaj nagłówki do raportu
-        reportData.add(new String[]{"fromAmount", "toAmount", ""}); // Zmień nagłówki na odpowiednie
-//        private long id;
-//        private BigDecimal fromAmountOperation;
-//        private BigDecimal ToAmountOperation;
-//        private BigDecimal midInTheseTimeFrom;
-//        private BigDecimal midInTheseTimeTo;
-//        private String chosenCurrencyFrom;
-//        private String chosenCurrencyTo;
-//        private LocalDateTime dateTimeFromOperation;
-        // Iteracja po historii i dodawanie danych do listy
+        reportData.add(new String[]{"currency", "mid", "date and time", "amount"}); // Zmień nagłówki na odpowiednie
+
         for (ExChangeHistoryLog e : allHistory) {
-            // Tworzymy nowy wiersz dla każdego elementu historii
-            String[] row = new String[3]; // Zmienna w zależności od liczby kolumn w raporcie
-            row[0] = e.getField1();  // Zastąp metodami dostępu do danych z obiektu ExChangeHistoryLog
-            row[1] = e.getField2();  // Zastąp metodami dostępu do danych z obiektu ExChangeHistoryLog
-            row[2] = e.getField3();  // Zastąp metodami dostępu do danych z obiektu ExChangeHistoryLog
+            String[] row = new String[4]; // Zmienna w zależności od liczby kolumn w raporcie
+            row[0] = e.getChosenCurrencyTo();  // Zastąp metodami dostępu do danych z obiektu ExChangeHistoryLog
+            row[1] = e.getMidInTheseTimeTo().toString();  // Zastąp metodami dostępu do danych z obiektu ExChangeHistoryLog
+            row[2] = e.getDateTimeFromOperation().toString();  // Zastąp metodami dostępu do danych z obiektu ExChangeHistoryLog
+            row[3] = e.getToAmountOperation().toString();
             reportData.add(row);
         }
-
-        // Generowanie raportu do pliku CSV
         ReportGeneratorService.generateCsvReport(reportData, "report.csv");
     }
     private BooleanExpression buildPredicate(ExChangeHistoryRequest request, QExChangeHistoryLog exChangeHistoryLog) {
