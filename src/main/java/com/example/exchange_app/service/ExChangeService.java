@@ -1,12 +1,10 @@
 package com.example.exchange_app.service;
 
-import com.example.exchange_app.model.CacheConstans;
 import com.example.exchange_app.model.ExChangeRateRequest;
 import com.example.exchange_app.model.QExChangeRate;
 import com.example.exchange_app.model.dto.CalculatorResponseDTO;
 import com.example.exchange_app.model.dto.ResponseRatesDTO;
 import com.example.exchange_app.model.history.ExChangeHistoryLog;
-import com.example.exchange_app.model.history.ExChangeHistoryRequest;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,12 +35,9 @@ public class ExChangeService {
 
 
 
-        @Cacheable(value = CacheConstans.FIND_ALL, key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort + '-' + #exChangeRateRequest.getFromMid + '-' + #exChangeRateRequest.getToMid + '-' + #exChangeRateRequest.getCode")
+    @Cacheable(value = "FIND_ALL", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     public Page<ResponseRatesDTO> findAll(ExChangeRateRequest exChangeRateRequest, Pageable pageable) {
-            System.out.println("REQ: code=" + exChangeRateRequest.getCode()
-                    + ", fromMid=" + exChangeRateRequest.getFromMid()
-                    + ", toMid=" + exChangeRateRequest.getToMid());
-            QExChangeRate exchangeRate = QExChangeRate.exChangeRate;
+        QExChangeRate exchangeRate = QExChangeRate.exChangeRate;
 
         BooleanExpression predicate = buildPredicate(exChangeRateRequest, exchangeRate);
 
@@ -63,19 +58,16 @@ public class ExChangeService {
         BooleanExpression predicate = exChangeRate.isNotNull();
 
         String currency = exChangeRateRequest.getCode();
-        BigDecimal fromMid = exChangeRateRequest.getFromMid();
-        BigDecimal toMid = exChangeRateRequest.getToMid();
-
 
         if (Objects.nonNull(currency) && !currency.isEmpty()) {
             predicate = predicate.and(exChangeRate.code.equalsIgnoreCase(currency));
         }
 
-        if (Objects.nonNull(toMid)) {
+        if (Objects.nonNull(currency) && !currency.isEmpty()) {
             predicate = predicate.and(exChangeRate.mid.loe(exChangeRateRequest.getToMid()));
         }
 
-        if (Objects.nonNull(fromMid)) {
+        if (Objects.nonNull(currency) && !currency.isEmpty()) {
             predicate = predicate.and(exChangeRate.mid.goe(exChangeRateRequest.getFromMid()));
         }
         return predicate;
@@ -101,7 +93,7 @@ public class ExChangeService {
 //        return map;
 //    }
 
-    @Cacheable(value = CacheConstans.FIND_BY_CODE, key = "#code")
+    @Cacheable(value = "FIND_BY_CODE", key = "#code")
     public ResponseRatesDTO findByCode(String code){
 
         ExChangeRate byCode = repository.findByCode(code).orElseThrow(() -> new NullPointerException("Not correct code"));
@@ -113,13 +105,13 @@ public class ExChangeService {
         return exc;
     }
     @Transactional
-    @CacheEvict(value = {CacheConstans.FIND_BY_CODE, CacheConstans.FIND_ALL}, allEntries = true)
+    @CacheEvict(value = {"FIND_BY_CODE", "FIND_ALL"}, allEntries = true)
     public ResponseDTOExChangeRate exChange(RequestExChangeDTO requestExChangeDTO){
         CalculatorResponseDTO calculatorResponseDTO = calculatorService.ExChange(requestExChangeDTO.getCodeCurrencyFrom(),
                 requestExChangeDTO.getCodeCurrencyTo(), requestExChangeDTO.getValueFrom());
         BigDecimal value = calculatorResponseDTO.getValue();
         if (value ==null|| value.signum()<=0){
-            throw new NullPointerException("amount from calculator is equal 0: ");
+            throw new NullPointerException("amount from calculator is equal 0: "+ value.toString());
         }
         ResponseDTOExChangeRate responseDTO = ResponseDTOExChangeRate.builder()
                 .codeFrom(requestExChangeDTO.getCodeCurrencyFrom())
@@ -129,9 +121,6 @@ public class ExChangeService {
                 .mid(calculatorResponseDTO.getMid())
                 .build();
         return responseDTO;
-    }
-    public void report(ExChangeHistoryRequest exChangeHistoryRequest){
-        historyLogService.saveReport(exChangeHistoryRequest);
     }
 
 }

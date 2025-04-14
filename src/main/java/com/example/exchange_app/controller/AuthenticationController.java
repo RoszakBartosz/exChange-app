@@ -19,7 +19,7 @@ public class AuthenticationController {
     private final AuthenticationService service;
     private final JwtService jwtService;
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody AuthenticationTokenRequest request) {
+    public ResponseEntity<?> refresh(@RequestBody AuthenticationRequestDTO request) {
         return new ResponseEntity<>(service.refresh(request), HttpStatus.OK);
     }
     @PostMapping("/register")
